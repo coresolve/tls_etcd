@@ -1,0 +1,37 @@
+---
+systemd:
+  units:
+    - name: etcd-member.service
+      enable: true
+      dropins:
+        - name: 40-etcd-cluster.conf
+          contents: |
+            [Unit]
+            After=network-online.target
+            Wants=network-online.target
+            [Service]
+            Environment="ETCD_IMAGE_TAG=v3.2.0"
+            Environment="ETCD_NAME={{.etcd_name}}"
+            Environment="ETCD_ADVERTISE_CLIENT_URLS=https://{{.domain_name}}:2379"
+            Environment="ETCD_INITIAL_ADVERTISE_PEER_URLS=https://{{.domain_name}}:2380"
+            Environment="ETCD_LISTEN_CLIENT_URLS=https://0.0.0.0:2379"
+            Environment="ETCD_LISTEN_PEER_URLS=https://0.0.0.0:2380"
+            Environment="ETCD_INITIAL_CLUSTER={{.etcd_initial_cluster}}"
+            Environment="ETCD_STRICT_RECONFIG_CHECK=true"
+            Environment="RKT_RUN_ARGS=--uuid-file-save=/var/lib/coreos/etcd-membrer-wrapper.uuid --dns=host"
+            Environment="ETCD_PEER_AUTO_TLS=true"
+            Environment="ETCD_CERT_FILE=/etc/ssl/etcd/server.crt"
+            Environment="ETCD_KEY_FILE=/etc/ssl/etcd/server.key"
+            Environment="ETCD_TRUSTED_CA_FILE=/etc/ssl/etcd/client-ca.pem"
+            Environment="ETCD_CLIENT_CERT_AUTH=true"
+    - name: locksmithd.service
+      dropins:
+        - name: 40-etcd-lock.conf
+          contents: |
+            [Service]
+            Environment="REBOOT_STRATEGY=etcd-lock"
+passwd:
+  users:
+    - name: core
+      ssh_authorized_keys:
+        - {{.ssh_authorized_key}}
