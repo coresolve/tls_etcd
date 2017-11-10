@@ -14,12 +14,12 @@ resource "null_resource" "etcd_secrets" {
   }
 
   provisioner "file" {
-    content     = "${file(var.etcd_server_cert_path)}"
+    content     = "${file(element(var.etcd_server_cert_path, count.index))}"
     destination = "$HOME/etcd_server.crt"
   }
 
   provisioner "file" {
-    content     = "${file(var.etcd_server_key_path)}"
+    content     = "${file(element(var.etcd_server_key_path, count.index))}"
     destination = "$HOME/etcd_server.key"
   }
 

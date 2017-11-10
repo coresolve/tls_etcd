@@ -1,7 +1,10 @@
 # etcd3 with peer auto tls and provided certs.
 
-This will bring up an etcd3 cluster that will be secured by user provided tls assets. We will configure the cluster to use auto-tls for the peer relationship.
+## Constraints
 
+* For each member use a provided certificate that has only the CN and SAN set for that hostname.
+* Configure PEER_AUTO_TLS for peer encryption
+* Configure the cluster to use MTLS and provide a ca cert that will be used to verify clients.
 
 ## Requirements
 
@@ -41,9 +44,9 @@ ssh_authorized_key          = "ssh-rsa AAAAB3NzaC1yc2EAAAABIwAAAQEA6NF8iallvQVp2
 etcd_member_names           = ["node001", "node002", "node003"]
 etcd_member_domains         = ["node001.metal.k8s.work", "node002.metal.k8s.work", "node003.metal.k8s.work"]
 etcd_member_macs            = ["08:00:27:00:00:01", "08:00:27:00:00:02", "08:00:27:00:00:03"]
+etcd_server_cert_path       = ["./etcd/node001.metal.k8s.work.crt", "./etcd/node002.metal.k8s.work.crt", "./etcd/node003.metal.k8s.work.crt"]
+etcd_server_key_path        = ["./etcd/node001.metal.k8s.work.key", "./etcd/node002.metal.k8s.work.key", "./etcd/node003.metal.k8s.work.key"]
 etcd_ca_cert_path           = "./etcd/ca.crt"
-etcd_server_cert_path       = "./etcd/server.crt"
-etcd_server_key_path        = "./etcd/server.key"
 ```
 
 Configs in `etcd3-install` configure the matchbox provider, define profiles (e.g. `cached-container-linux-install`, `etcd3`), and define 3 groups which match machines by MAC address to a profile. These resources declare that the machines should PXE boot, install Container Linux to disk, and provision themselves into peers in a 3-node etcd3 cluster.

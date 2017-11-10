@@ -77,20 +77,20 @@ EOF
 }
 
 variable "etcd_server_cert_path" {
-  type    = "string"
-  default = "/dev/null"
+  type    = "list"
+  default = ["/dev/null"]
 
   description = <<EOF
-The path of the file containing the server certificate for TLS communication with etcd.
+The ordered list of paths of the file containing the server certificate for TLS communication with etcd.
 EOF
 }
 
 variable "etcd_server_key_path" {
-  type    = "string"
-  default = "/dev/null"
+  type    = "list"
+  default = ["/dev/null"]
 
   description = <<EOF
-The path of the file containing the server key for TLS communication with etcd.
+The ordered list of paths of the file containing the server key for TLS communication with etcd.
 EOF
 }
 
