@@ -1,5 +1,6 @@
 resource "null_resource" "etcd_secrets" {
   count = "${length(var.etcd_member_domains)}"
+
   connection {
     type    = "ssh"
     host    = "${element(var.etcd_member_domains, count.index)}"
@@ -24,12 +25,12 @@ resource "null_resource" "etcd_secrets" {
 
   provisioner "remote-exec" {
     inline = [
-      "sudo mkdir -p /etc/ssl/etcd",
-      "sudo mv /home/core/etcd_ca.crt /etc/ssl/etcd/ca.crt",
-      "sudo mv /home/core/etcd_server.crt /etc/ssl/etcd/server.crt",
-      "sudo mv /home/core/etcd_server.key /etc/ssl/etcd/server.key",
-      "sudo chown etcd:etcd /etc/ssl/etcd/*",
-      "sudo chmod 0400 /etc/ssl/etcd/*",
+      "sudo mkdir -p /etc/ssl/certs/etcd",
+      "sudo mv /home/core/etcd_ca.crt /etc/ssl/certs/etcd/ca.crt",
+      "sudo mv /home/core/etcd_server.crt /etc/ssl/certs/etcd/server.crt",
+      "sudo mv /home/core/etcd_server.key /etc/ssl/certs/etcd/server.key",
+      "sudo chown etcd:etcd /etc/ssl/certs/etcd/*",
+      "sudo chmod 0400 /etc/ssl/certs/etcd/*",
     ]
   }
 }

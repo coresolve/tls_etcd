@@ -1,7 +1,12 @@
-matchbox_http_endpoint = "http://matchbox.example.com:8080"
-matchbox_rpc_endpoint = "matchbox.example.com:8081"
-# ssh_authorized_key = "ADD ME"
-
-# Optional (defaults)
-# install_disk = "/dev/sda"
-# container_linux_oem = ""
+matchbox_http_endpoint = "http://provisioner.metal.k8s.work:8080"
+matchbox_rpc_endpoint = "provisioner.metal.k8s.work:8081"
+matchbox_client_cert_path = "./matchbox/client.crt"
+matchbox_client_key_path = "./matchbox/client.key"
+matchbox_client_ca_cert_path = "./matchbox/ca.crt"
+ssh_authorized_key = "ssh-rsa AAAAB3NzaC1yc2EAAAABIwAAAQEA6NF8iallvQVp22WDkTkyrtvp9eWW6A8YVr+kz4TjGYe7gHzIw+niNltGEFHzD8+v1I2YJ6oXevct1YeS0o9HZyN1Q9qgCgzUFtdOKLv6IedplqoPkcmF0aYet2PkEDo3MlTBckFXPITAMzF8dJSIFo9D8HfdOV0IAdx4O7PtixWKn5y2hMNG0zQPyUecp4pzC6kivAIhyfHilFR61RGL+GPXQ2MWZWFYbAGjyiYJnAmCP3NOTd0jMZEnDkbUvxhMmBYSdETk1rRgm+R4LOzFUGaHqHDLKLX+FIPKcF96hrucXzcWyLbIbEgE98OHlnVYCzRdK8jlqm8tehUc9c9WhQ== /Users/dcooley/.ssh/vagrant_rsa"
+etcd_member_names = ["node001", "node002", "node003"]
+etcd_member_domains = ["node001.metal.k8s.work", "node002.metal.k8s.work", "node003.metal.k8s.work"]
+etcd_member_macs = ["08:00:27:00:00:01", "08:00:27:00:00:02", "08:00:27:00:00:03"]
+etcd_ca_cert_path = "./etcd/ca.crt"
+etcd_server_cert_path = "./etcd/server.crt"
+etcd_server_key_path  = "./etcd/server.key"

@@ -1,13 +1,15 @@
-# etcd3
+# etcd3 with peer auto tls and provided certs.
 
-The `etcd3-install` example shows how to use matchbox to network boot and provision 3-node etcd3 cluster on bare-metal in an automated way.
+This will bring up an etcd3 cluster that will be secured by user provided tls assets. We will configure the cluster to use auto-tls for the peer relationship.
+
 
 ## Requirements
 
-Follow the getting started [tutorial](../../../Documentation/getting-started.md) to learn about matchbox and set up an environment that meets the requirements:
-
 * Matchbox v0.6+ [installation](../../../Documentation/deployment.md) with gRPC API enabled
-* Matchbox provider credentials `client.crt`, `client.key`, and `ca.crt`
+* Matchbox provider credentials `matchbox/client.crt`, `matchbox/client.key`, and `matchbox/ca.crt`
+* Etcd tls assets `etcd/server.crt` `etcd/server.key` `etcd/ca.key`
+* Etcd tls assets `etcd/client.crt` and `etcd/client.key`
+* The server cert must have a SAN IP of 127.0.0.1 and a san for every hostname in the cluster.
 * PXE [network boot](../../../Documentation/network-setup.md) environment
 * Terraform v0.9+ and [terraform-provider-matchbox](https://github.com/coreos/terraform-provider-matchbox) installed locally on your system
 * 3 machines with known DNS names and MAC addresses
@@ -30,9 +32,18 @@ $ cd matchbox/examples/terraform/etcd3-install
 Copy the `terraform.tfvars.example` file to `terraform.tfvars`. Ensure `provider.tf` references your matchbox credentials.
 
 ```hcl
-matchbox_http_endpoint = "http://matchbox.example.com:8080"
-matchbox_rpc_endpoint = "matchbox.example.com:8081"
-ssh_authorized_key = "ADD ME"
+matchbox_http_endpoint      = "http://matchbox.example.com:8080"
+matchbox_rpc_endpoint       = "matchbox.example.com:8081"
+matchbox_ca_cert_file       = "./matchbox/ca.crt"
+matchbox_client_cert_file   = "./matchbox/client.crt"
+matchbox_client_key_file    = "./matchbox/client.key"
+ssh_authorized_key          = "ssh-rsa AAAAB3NzaC1yc2EAAAABIwAAAQEA6NF8iallvQVp22WDkTkyrtvp9eWW6A8YVr+kz4TjGYe7gHzIw+niNltGEFHzD8+v1I2YJ6oXevct1YeS0o9HZyN1Q9qgCgzUFtdOKLv6IedplqoPkcmF0aYet2PkEDo3MlTBckFXPITAMzF8dJSIFo9D8HfdOV0IAdx4O7PtixWKn5y2hMNG0zQPyUecp4pzC6kivAIhyfHilFR61RGL+GPXQ2MWZWFYbAGjyiYJnAmCP3NOTd0jMZEnDkbUvxhMmBYSdETk1rRgm+R4LOzFUGaHqHDLKLX+FIPKcF96hrucXzcWyLbIbEgE98OHlnVYCzRdK8jlqm8tehUc9c9WhQ== vagrant_rsa"
+etcd_member_names           = ["node001", "node002", "node003"]
+etcd_member_domains         = ["node001.metal.k8s.work", "node002.metal.k8s.work", "node003.metal.k8s.work"]
+etcd_member_macs            = ["08:00:27:00:00:01", "08:00:27:00:00:02", "08:00:27:00:00:03"]
+etcd_ca_cert_path           = "./etcd/ca.crt"
+etcd_server_cert_path       = "./etcd/server.crt"
+etcd_server_key_path        = "./etcd/server.key"
 ```
 
 Configs in `etcd3-install` configure the matchbox provider, define profiles (e.g. `cached-container-linux-install`, `etcd3`), and define 3 groups which match machines by MAC address to a profile. These resources declare that the machines should PXE boot, install Container Linux to disk, and provision themselves into peers in a 3-node etcd3 cluster.
@@ -53,7 +64,7 @@ You may set certain optional variables to override defaults.
 Fetch the [profiles](../README.md#modules) Terraform [module](https://www.terraform.io/docs/modules/index.html) which let's you use common machine profiles maintained in the matchbox repo (like `etcd3`).
 
 ```sh
-$ terraform get
+$ terraform init
 ```
 
 Plan and apply to create the resoures on Matchbox.
@@ -93,7 +104,10 @@ $ systemctl status etcd-member
 Verify that etcd3 peers are healthy and communicating.
 
 ```sh
-$ etcdctl cluster-health
+$ ETCDCTL_API=3 etcdctl --cacert=./etcd/ca.crt --cert=./etcd/client.crt --key=./etcd/client.key --endpoints=https://node001.metal.k8s.work:2379,https://node002.metal.k8s.work:2379,https://node003.metal.k8s.work:2379 member list
+76f6fd44a6265301, started, node003, https://node003.metal.k8s.work:2380, https://node003.metal.k8s.work:2379
+8fbc6b3a15e12cb6, started, node001, https://node001.metal.k8s.work:2380, https://node001.metal.k8s.work:2379
+9d963fb82799c5e4, started, node002, https://node002.metal.k8s.work:2380, https://node002.metal.k8s.work:2379
 $ etcdctl set /message hello
 $ etcdctl get /message
 ```

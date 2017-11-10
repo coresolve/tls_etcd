@@ -7,6 +7,7 @@ systemd:
         - name: 40-etcd-cluster.conf
           contents: |
             [Unit]
+            ConditionPathExists=/etc/ssl/certs/etcd
             After=network-online.target
             Wants=network-online.target
             [Service]
@@ -18,11 +19,11 @@ systemd:
             Environment="ETCD_LISTEN_PEER_URLS=https://0.0.0.0:2380"
             Environment="ETCD_INITIAL_CLUSTER={{.etcd_initial_cluster}}"
             Environment="ETCD_STRICT_RECONFIG_CHECK=true"
-            Environment="RKT_RUN_ARGS=--uuid-file-save=/var/lib/coreos/etcd-membrer-wrapper.uuid --dns=host"
+            Environment="RKT_RUN_ARGS=--uuid-file-save=/var/lib/coreos/etcd-member-wrapper.uuid --dns=host"
             Environment="ETCD_PEER_AUTO_TLS=true"
-            Environment="ETCD_CERT_FILE=/etc/ssl/etcd/server.crt"
-            Environment="ETCD_KEY_FILE=/etc/ssl/etcd/server.key"
-            Environment="ETCD_TRUSTED_CA_FILE=/etc/ssl/etcd/client-ca.pem"
+            Environment="ETCD_CERT_FILE=/etc/ssl/certs/etcd/server.crt"
+            Environment="ETCD_KEY_FILE=/etc/ssl/certs/etcd/server.key"
+            Environment="ETCD_TRUSTED_CA_FILE=/etc/ssl/certs/etcd/ca.crt"
             Environment="ETCD_CLIENT_CERT_AUTH=true"
     - name: locksmithd.service
       dropins:
@@ -30,6 +31,14 @@ systemd:
           contents: |
             [Service]
             Environment="REBOOT_STRATEGY=etcd-lock"
+storage:
+  files:
+    - path: /etc/hostname
+      filesystem: root
+      mode: 0644
+      contents:
+        inline:
+          {{.domain_name}}
 passwd:
   users:
     - name: core

@@ -8,6 +8,21 @@ variable "matchbox_rpc_endpoint" {
   description = "Matchbox gRPC API endpoint, without the protocol (e.g. matchbox.example.com:8081)"
 }
 
+variable "matchbox_ca_cert_path" {
+  type        = "string"
+  description = "path to the ca cert for matchbox. (e.g. ./matchbox/ca.crt)"
+}
+
+variable "matchbox_client_cert_path" {
+  type        = "string"
+  description = "path to the client cert for matchbox. (e.g. ./matchbox/client.crt)"
+}
+
+variable "matchbox_client_key_path" {
+  type        = "string"
+  description = "path to the client key for matchbox. (e.g. ./matchbox/client.key)"
+}
+
 variable "ssh_authorized_key" {
   type        = "string"
   description = "SSH public key to set as an authorized_key on machines"

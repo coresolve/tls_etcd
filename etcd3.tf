@@ -25,7 +25,7 @@ resource "matchbox_group" "coreos_install" {
 
 data "template_file" "etcd_initial_cluster" {
   count    = "${length(var.etcd_member_domains)}"
-  template = "https://${var.etcd_member_domains[count.index]}:2380"
+  template = "${var.etcd_member_names[count.index]}=https://${var.etcd_member_domains[count.index]}:2380"
 }
 
 resource "matchbox_group" "etcd_member" {
